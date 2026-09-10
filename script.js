@@ -1,56 +1,44 @@
-const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("dragonCanvas");
 const ctx = canvas.getContext("2d");
 
-const scoreText = document.getElementById("score");
+canvas.width = window.innerWidth * 0.8;
+canvas.height = window.innerHeight * 0.6;
 
 
-const box = 20;
-
-let snake = [
-    {
-        x: 200,
-        y: 200
-    }
-];
-
-
-let food = {
-    x: 300,
-    y: 300
+let mouse = {
+    x: canvas.width / 2,
+    y: canvas.height / 2
 };
 
 
-let direction = "RIGHT";
+let dragon = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    size: 40
+};
 
-let score = 0;
+
+document.addEventListener("mousemove", (event) => {
+
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
+
+});
 
 
-document.addEventListener("keydown", changeDirection);
 
+function updateDragon(){
 
-function changeDirection(event){
+    // smooth follow movement
 
-    if(event.key === "ArrowUp" && direction !== "DOWN"){
-        direction = "UP";
-    }
-
-    else if(event.key === "ArrowDown" && direction !== "UP"){
-        direction = "DOWN";
-    }
-
-    else if(event.key === "ArrowLeft" && direction !== "RIGHT"){
-        direction = "LEFT";
-    }
-
-    else if(event.key === "ArrowRight" && direction !== "LEFT"){
-        direction = "RIGHT";
-    }
+    dragon.x += (mouse.x - dragon.x) * 0.05;
+    dragon.y += (mouse.y - dragon.y) * 0.05;
 
 }
 
 
 
-function draw(){
+function drawDragon(){
 
     ctx.clearRect(
         0,
@@ -60,127 +48,78 @@ function draw(){
     );
 
 
-    // Draw snake
+    // dragon glow
 
-    snake.forEach((part)=>{
-
-        ctx.fillStyle = "lime";
-
-        ctx.fillRect(
-            part.x,
-            part.y,
-            box,
-            box
-        );
-
-    });
+    ctx.shadowColor = "orange";
+    ctx.shadowBlur = 25;
 
 
-    // Draw food
+    // dragon body
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#8b4513";
 
-    ctx.fillRect(
-        food.x,
-        food.y,
-        box,
-        box
+    ctx.beginPath();
+
+    ctx.arc(
+        dragon.x,
+        dragon.y,
+        dragon.size,
+        0,
+        Math.PI * 2
     );
 
+    ctx.fill();
 
-    moveSnake();
 
 
-    setTimeout(draw, 100);
+    // dragon head
+
+    ctx.fillStyle = "#d2691e";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        dragon.x + 35,
+        dragon.y - 10,
+        25,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+
+    // eye
+
+    ctx.fillStyle = "yellow";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        dragon.x + 45,
+        dragon.y - 18,
+        5,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
 
 }
 
 
 
-function moveSnake(){
+function animate(){
 
-    let head = {
-        x: snake[0].x,
-        y: snake[0].y
-    };
+    updateDragon();
 
+    drawDragon();
 
-    if(direction === "UP"){
-        head.y -= box;
-    }
-
-    if(direction === "DOWN"){
-        head.y += box;
-    }
-
-    if(direction === "LEFT"){
-        head.x -= box;
-    }
-
-    if(direction === "RIGHT"){
-        head.x += box;
-    }
-
-
-
-    // Eat food
-
-    if(
-        head.x === food.x &&
-        head.y === food.y
-    ){
-
-        score++;
-
-        scoreText.innerHTML = score;
-
-
-        food = {
-            x:
-            Math.floor(
-                Math.random() *
-                (canvas.width / box)
-            ) * box,
-
-            y:
-            Math.floor(
-                Math.random() *
-                (canvas.height / box)
-            ) * box
-        };
-
-    }
-
-    else{
-
-        snake.pop();
-
-    }
-
-
-
-    // Game over
-
-    if(
-        head.x < 0 ||
-        head.y < 0 ||
-        head.x >= canvas.width ||
-        head.y >= canvas.height
-    ){
-
-        alert(
-            "Game Over! Score: " + score
-        );
-
-        location.reload();
-
-    }
-
-
-    snake.unshift(head);
+    requestAnimationFrame(animate);
 
 }
 
 
-
-draw();
+animate();
