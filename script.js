@@ -45,7 +45,7 @@ function loadImage(src){
 
 const headPath = "assets/dragon/assets/dragon/head/";
 
-const bodyPath = "assets/dragon/body/";
+const bodyPath = "assets/dragon/assets/dragon/body/";
 
 const tailPath = "assets/dragon/tail/";
 
