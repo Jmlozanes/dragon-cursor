@@ -1,70 +1,120 @@
 const canvas = document.getElementById("dragonCanvas");
 const ctx = canvas.getContext("2d");
 
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 
-let mouse = {
+// =======================
+// MOUSE
+// =======================
+
+const mouse = {
     x: canvas.width / 2,
     y: canvas.height / 2
 };
 
 
-let dragon = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    angle: 0,
-    speed: 0.05
-};
+window.addEventListener("mousemove", e => {
 
-
-// Dragon body segments
-
-let body = [];
-
-const bodyLength = 12;
-
-for (let i = 0; i < bodyLength; i++) {
-
-    body.push({
-        x: dragon.x - (i * 20),
-        y: dragon.y
-    });
-
-}
-
-
-// Particle system
-
-let particles = [];
-
-
-// Mouse tracking
-
-document.addEventListener("mousemove", (event)=>{
-
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
 
 });
 
 
-// Create fire particles
+// =======================
+// LOAD ASSETS
+// =======================
 
-function createFire(){
+const headImg = new Image();
+headImg.src = "assets/dragon/head/head_idle.png";
 
-    particles.push({
 
-        x: dragon.x - Math.cos(dragon.angle) * 30,
-        y: dragon.y - Math.sin(dragon.angle) * 30,
+const bodyImg = new Image();
+bodyImg.src = "assets/dragon/body/body_segment.png";
 
-        size: Math.random() * 8 + 3,
 
-        speedX: (Math.random() - 0.5) * 3,
-        speedY: (Math.random() - 0.5) * 3,
+const tailImg = new Image();
+tailImg.src = "assets/dragon/tail/tail_segment.png";
 
-        life: 50
+
+const fireImg = new Image();
+fireImg.src = "assets/dragon/effects/fire.png";
+
+
+const wings = [
+
+"assets/dragon/wings/wing_1.png",
+
+"assets/dragon/wings/wing_2.png",
+
+"assets/dragon/wings/wing_3.png"
+
+];
+
+
+let wingImages = [];
+
+wings.forEach(src=>{
+
+    let img = new Image();
+
+    img.src = src;
+
+    wingImages.push(img);
+
+});
+
+
+let wingFrame = 0;
+
+
+setInterval(()=>{
+
+    wingFrame++;
+
+    if(wingFrame >= wingImages.length){
+
+        wingFrame = 0;
+
+    }
+
+},180);
+
+
+
+// =======================
+// DRAGON
+// =======================
+
+
+const dragon = {
+
+    x: canvas.width/2,
+
+    y: canvas.height/2,
+
+    angle:0,
+
+    speed:0.08
+
+};
+
+
+
+let bodySegments=[];
+
+
+
+for(let i=0;i<12;i++){
+
+    bodySegments.push({
+
+        x:dragon.x-(i*30),
+
+        y:dragon.y
 
     });
 
@@ -72,45 +122,64 @@ function createFire(){
 
 
 
-// Update dragon movement
+// Fire particles
 
-function updateDragon(){
-
-
-    let dx = mouse.x - dragon.x;
-    let dy = mouse.y - dragon.y;
-
-
-    dragon.angle = Math.atan2(dy, dx);
-
-
-    dragon.x += dx * dragon.speed;
-    dragon.y += dy * dragon.speed;
+let fireParticles=[];
 
 
 
-    let previous = {
+// =======================
+// UPDATE
+// =======================
 
-        x: dragon.x,
-        y: dragon.y
+
+function update(){
+
+
+    let dx = mouse.x-dragon.x;
+
+    let dy = mouse.y-dragon.y;
+
+
+    dragon.angle=Math.atan2(dy,dx);
+
+
+
+    dragon.x += dx*dragon.speed;
+
+    dragon.y += dy*dragon.speed;
+
+
+
+    let previous={
+
+        x:dragon.x,
+
+        y:dragon.y
 
     };
 
 
 
-    body.forEach(segment=>{
+    bodySegments.forEach(segment=>{
 
 
-        let oldX = segment.x;
-        let oldY = segment.y;
+        let old={
+
+            x:segment.x,
+
+            y:segment.y
+
+        };
 
 
-        segment.x += (previous.x - segment.x) * 0.2;
-        segment.y += (previous.y - segment.y) * 0.2;
+        segment.x += (previous.x-segment.x)*0.25;
+
+        segment.y += (previous.y-segment.y)*0.25;
 
 
-        previous.x = oldX;
-        previous.y = oldY;
+
+        previous=old;
 
 
     });
@@ -120,218 +189,237 @@ function updateDragon(){
     createFire();
 
 
+}
+
+
+
+// =======================
+// FIRE
+// =======================
+
+
+function createFire(){
+
+
+    fireParticles.push({
+
+        x:dragon.x,
+
+        y:dragon.y,
+
+
+        size:Math.random()*15+5,
+
+
+        life:40
+
+    });
+
 
 }
 
 
 
-// Draw dragon
+// =======================
+// DRAW
+// =======================
 
-function drawDragon(){
+
+function draw(){
 
 
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
+ctx.clearRect(
+
+0,
+
+0,
+
+canvas.width,
+
+canvas.height
+
+);
+
+
+
+ctx.save();
+
+
+
+// Fire
+
+fireParticles.forEach((p,index)=>{
+
+
+    ctx.globalAlpha=p.life/40;
+
+
+    ctx.drawImage(
+
+        fireImg,
+
+        p.x-50,
+
+        p.y-20,
+
+        100,
+
+        40
+
     );
 
 
-
-    // Fire particles
-
-    particles.forEach((particle,index)=>{
+    p.life--;
 
 
-        ctx.fillStyle = "orange";
+    if(p.life<=0){
 
-        ctx.shadowColor = "red";
-        ctx.shadowBlur = 20;
+        fireParticles.splice(index,1);
+
+    }
 
 
-        ctx.beginPath();
+});
 
-        ctx.arc(
-            particle.x,
-            particle.y,
-            particle.size,
-            0,
-            Math.PI * 2
-        );
 
-        ctx.fill();
+ctx.globalAlpha=1;
 
 
 
-        particle.x += particle.speedX;
-        particle.y += particle.speedY;
-
-        particle.life--;
+// Body
 
 
-
-        if(particle.life <= 0){
-
-            particles.splice(index,1);
-
-        }
+bodySegments.forEach((seg,index)=>{
 
 
-    });
+    ctx.drawImage(
 
+        bodyImg,
 
+        seg.x-30,
 
-    ctx.shadowColor = "orange";
-    ctx.shadowBlur = 30;
+        seg.y-30,
 
+        60,
 
+        60
 
-    // Tail / body
-
-    body.forEach((segment,index)=>{
-
-
-        ctx.fillStyle = index === 0
-        ? "#b87333"
-        : "#6b3e1e";
-
-
-
-        ctx.beginPath();
-
-        ctx.arc(
-
-            segment.x,
-            segment.y,
-
-            25 - index,
-
-            0,
-
-            Math.PI * 2
-
-        );
-
-
-        ctx.fill();
-
-
-    });
-
-
-
-    // Dragon head
-
-    ctx.save();
-
-
-    ctx.translate(
-        dragon.x,
-        dragon.y
     );
 
 
-    ctx.rotate(dragon.angle);
+});
 
 
 
-    // Head
-
-    ctx.fillStyle = "#d2691e";
+// Wings
 
 
-    ctx.beginPath();
-
-    ctx.arc(
-        0,
-        0,
-        35,
-        0,
-        Math.PI * 2
-    );
+ctx.save();
 
 
-    ctx.fill();
+ctx.translate(
+
+dragon.x,
+
+dragon.y
+
+);
 
 
-
-    // Eye
-
-    ctx.fillStyle = "yellow";
+ctx.rotate(dragon.angle);
 
 
-    ctx.beginPath();
+ctx.drawImage(
 
-    ctx.arc(
-        15,
-        -12,
-        7,
-        0,
-        Math.PI * 2
-    );
+wingImages[wingFrame],
+
+-80,
+
+-120,
+
+160,
+
+160
+
+);
 
 
-    ctx.fill();
+ctx.restore();
 
 
 
-    // Horns
 
-    ctx.fillStyle = "#eee";
+// Head
 
 
-    ctx.beginPath();
+ctx.translate(
 
-    ctx.moveTo(
-        -10,
-        -25
-    );
+dragon.x,
 
-    ctx.lineTo(
-        -25,
-        -50
-    );
+dragon.y
 
-    ctx.lineTo(
-        0,
-        -25
-    );
+);
 
-    ctx.fill();
+
+ctx.rotate(dragon.angle);
 
 
 
-    ctx.restore();
+ctx.drawImage(
+
+headImg,
+
+-50,
+
+-50,
+
+100,
+
+100
+
+);
+
+
+
+ctx.restore();
 
 
 
 }
 
 
+
+// =======================
+// LOOP
+// =======================
 
 
 function animate(){
 
-    updateDragon();
+    update();
 
-    drawDragon();
+    draw();
 
     requestAnimationFrame(animate);
 
 }
 
 
-
 animate();
 
 
 
-// Resize support
+// =======================
+// RESIZE
+// =======================
+
 
 window.addEventListener("resize",()=>{
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+
+canvas.width=window.innerWidth;
+
+canvas.height=window.innerHeight;
+
 
 });
