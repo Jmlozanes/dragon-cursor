@@ -23,6 +23,7 @@ window.addEventListener("mousemove", (e)=>{
 });
 
 
+
 // =============================
 // IMAGE LOADER
 // =============================
@@ -36,6 +37,8 @@ function loadImage(src){
     return img;
 
 }
+
+
 
 // =============================
 // DRAGON ASSETS
@@ -74,11 +77,16 @@ const wingFrames = [
 
 ];
 
+
+
+// =============================
+// IMAGE CHECK
+// =============================
+
 let imagesLoaded = false;
 
 
 function checkImages(){
-
 
     imagesLoaded = [
 
@@ -90,7 +98,6 @@ function checkImages(){
 
     ].every(img => img.complete && img.naturalWidth > 0);
 
-
 }
 
 
@@ -101,7 +108,6 @@ setInterval(checkImages,100);
 // =============================
 // DRAGON
 // =============================
-
 
 let dragon = {
 
@@ -117,7 +123,9 @@ let dragon = {
 
 
 
+// =============================
 // BODY
+// =============================
 
 let bodyParts=[];
 
@@ -126,7 +134,7 @@ for(let i=0;i<10;i++){
 
     bodyParts.push({
 
-        x: dragon.x - (i*45),
+        x: dragon.x - (i*25),
 
         y: dragon.y
 
@@ -136,7 +144,9 @@ for(let i=0;i<10;i++){
 
 
 
+// =============================
 // TAIL
+// =============================
 
 let tailParts=[];
 
@@ -145,7 +155,7 @@ for(let i=0;i<5;i++){
 
     tailParts.push({
 
-        x: dragon.x - (400+i*40),
+        x: dragon.x - (250+i*30),
 
         y: dragon.y
 
@@ -155,7 +165,9 @@ for(let i=0;i<5;i++){
 
 
 
+// =============================
 // WING ANIMATION
+// =============================
 
 let currentWing = 0;
 
@@ -173,20 +185,89 @@ setInterval(()=>{
     }
 
 
-},200);
+},180);
 
 
 
-// FIRE
+// =============================
+// FIRE PARTICLES
+// =============================
 
 let fireParticles=[];
 
 
 
-// =============================
-// UPDATE
-// =============================
+function createFire(){
 
+
+    fireParticles.push({
+
+        x: dragon.x - Math.cos(dragon.angle)*120,
+
+        y: dragon.y - Math.sin(dragon.angle)*120,
+
+        life:30,
+
+        size:80
+
+    });
+
+
+}
+
+
+
+function drawFire(){
+
+
+    fireParticles.forEach((p,index)=>{
+
+
+        ctx.globalAlpha = p.life / 30;
+
+
+        if(fire.complete){
+
+            ctx.drawImage(
+
+                fire,
+
+                p.x - p.size/2,
+
+                p.y - p.size/2,
+
+                p.size,
+
+                p.size
+
+            );
+
+        }
+
+
+        p.life--;
+
+
+        if(p.life <= 0){
+
+            fireParticles.splice(index,1);
+
+        }
+
+
+    });
+
+
+    ctx.globalAlpha=1;
+
+
+}
+
+
+
+// =============================
+// UPDATE DRAGON
+// =============================
 
 function updateDragon(){
 
@@ -204,7 +285,6 @@ function updateDragon(){
     dragon.x += dx * dragon.speed;
 
     dragon.y += dy * dragon.speed;
-
 
 
 
@@ -230,10 +310,9 @@ function updateDragon(){
         };
 
 
+        part.x += (previous.x-part.x)*0.25;
 
-        part.x += (previous.x - part.x) * 0.2;
-
-        part.y += (previous.y - part.y) * 0.2;
+        part.y += (previous.y-part.y)*0.25;
 
 
         previous = old;
@@ -246,9 +325,9 @@ function updateDragon(){
     tailParts.forEach(part=>{
 
 
-        part.x += (dragon.x - part.x) * 0.03;
+        part.x += (dragon.x-part.x)*0.04;
 
-        part.y += (dragon.y - part.y) * 0.03;
+        part.y += (dragon.y-part.y)*0.04;
 
 
     });
@@ -263,86 +342,8 @@ function updateDragon(){
 
 
 // =============================
-// FIRE EFFECT
-// =============================
-
-
-function createFire(){
-
-
-    fireParticles.push({
-
-        x: dragon.x - Math.cos(dragon.angle)*100,
-
-        y: dragon.y - Math.sin(dragon.angle)*100,
-
-        life:30,
-
-        size:70
-
-    });
-
-
-}
-
-
-
-function drawFire(){
-
-
-    fireParticles.forEach((p,index)=>{
-
-
-        ctx.globalAlpha = p.life / 30;
-
-
-
-        if(fire.complete){
-
-            ctx.drawImage(
-
-                fire,
-
-                p.x - p.size/2,
-
-                p.y - p.size/2,
-
-                p.size,
-
-                p.size
-
-            );
-
-        }
-
-
-
-        p.life--;
-
-
-
-        if(p.life <= 0){
-
-            fireParticles.splice(index,1);
-
-        }
-
-
-    });
-
-
-
-    ctx.globalAlpha=1;
-
-
-}
-
-
-
-// =============================
 // DRAW DRAGON
 // =============================
-
 
 function drawDragon(){
 
@@ -375,24 +376,24 @@ ctx.drawImage(
 
 dragonTail,
 
--70,
+-80,
 
--70,
+-80,
 
-140,
+160,
 
-140
+160
 
 );
 
 }
 
 
-
 ctx.restore();
 
 
 });
+
 
 
 
@@ -425,13 +426,13 @@ ctx.drawImage(
 
 dragonBody,
 
--60,
+-90,
 
--60,
+-90,
 
-120,
+180,
 
-120
+180
 
 );
 
@@ -443,6 +444,7 @@ ctx.restore();
 
 
 });
+
 
 
 
@@ -473,21 +475,21 @@ ctx.drawImage(
 
 wingFrames[currentWing],
 
--180,
+-220,
 
--180,
+-220,
 
-360,
+440,
 
-360
+440
 
 );
 
 }
 
 
-
 ctx.restore();
+
 
 
 
@@ -518,18 +520,17 @@ ctx.drawImage(
 
 dragonHead,
 
--100,
+-140,
 
--100,
+-140,
 
-200,
+280,
 
-200
+280
 
 );
 
 }
-
 
 
 ctx.restore();
@@ -544,7 +545,6 @@ ctx.restore();
 // =============================
 // LOOP
 // =============================
-
 
 function animate(){
 
@@ -585,10 +585,10 @@ animate();
 
 
 
+
 // =============================
 // RESIZE
 // =============================
-
 
 window.addEventListener("resize",()=>{
 
