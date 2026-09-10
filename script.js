@@ -42,7 +42,7 @@ function loadImage(src){
 // DRAGON ASSETS
 // =============================
 
-const assetPath = "assets/dragon/assets/dragon/";
+const assetPath = "./assets/dragon/assets/dragon/";
 
 
 const dragonHead = loadImage(
