@@ -37,7 +37,6 @@ function loadImage(src){
 
 }
 
-
 // =============================
 // DRAGON ASSETS
 // =============================
@@ -74,11 +73,6 @@ const wingFrames = [
     loadImage(assetPath + "wing_3.png")
 
 ];
-
-
-// =============================
-// CHECK IMAGE LOADING
-// =============================
 
 let imagesLoaded = false;
 
