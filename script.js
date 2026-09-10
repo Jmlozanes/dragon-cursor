@@ -5,53 +5,60 @@ canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 
-// ==========================
+// =====================
 // MOUSE
-// ==========================
+// =====================
 
 let mouse = {
-    x: innerWidth/2,
-    y: innerHeight/2
+    x: innerWidth / 2,
+    y: innerHeight / 2
 };
 
 
-window.addEventListener("mousemove", e=>{
+window.addEventListener("mousemove", e => {
+
     mouse.x = e.clientX;
     mouse.y = e.clientY;
+
 });
 
 
 
-// ==========================
-// DRAGON
-// ==========================
+// =====================
+// DRAGON OBJECT
+// =====================
 
 let dragon = {
 
     x: innerWidth/2,
     y: innerHeight/2,
 
-    angle:0
+    angle:0,
+
+    wingTime:0
 
 };
 
 
 
-// ==========================
-// BODY TRAIL
-// ==========================
+// =====================
+// FIRE TRAIL
+// =====================
 
-let segments=[];
+let flames=[];
 
 
-for(let i=0;i<18;i++){
+function createFire(){
 
-    segments.push({
+    flames.push({
 
-        x:dragon.x,
-        y:dragon.y,
+        x: dragon.x - Math.cos(dragon.angle)*35,
 
-        size:30-i
+        y: dragon.y - Math.sin(dragon.angle)*35,
+
+        size: Math.random()*15+8,
+
+        life:40
 
     });
 
@@ -59,67 +66,83 @@ for(let i=0;i<18;i++){
 
 
 
-// ==========================
-// FIRE PARTICLES
-// ==========================
-
-let fire=[];
-
-
-
-function createFire(x,y){
-
-    for(let i=0;i<3;i++){
-
-        fire.push({
-
-            x:x,
-            y:y,
-
-            size:Math.random()*12+5,
-
-            life:40
-
-        });
-
-    }
-
-}
-
-
-
 function drawFire(){
 
-    fire.forEach((p,index)=>{
+    flames.forEach((f,index)=>{
+
+
+        ctx.save();
+
+
+        ctx.globalAlpha=f.life/40;
+
+
+        ctx.shadowBlur=20;
+
+        ctx.shadowColor="orange";
+
+
+        ctx.fillStyle="orange";
 
 
         ctx.beginPath();
 
-
-        ctx.fillStyle=
-        `rgba(255,${80+Math.random()*150},0,${p.life/40})`;
-
-
         ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
 
+            f.x,
+
+            f.y,
+
+            f.size,
+
+            0,
+
+            Math.PI*2
+
+        );
 
         ctx.fill();
 
 
-        p.y+=Math.random()*2-1;
 
-        p.life--;
+        ctx.fillStyle="yellow";
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            f.x,
+
+            f.y,
+
+            f.size/2,
+
+            0,
+
+            Math.PI*2
+
+        );
+
+        ctx.fill();
 
 
-        if(p.life<=0){
 
-            fire.splice(index,1);
+        ctx.restore();
+
+
+
+        f.x -= Math.cos(dragon.angle)*2;
+
+        f.y -= Math.sin(dragon.angle)*2;
+
+
+        f.life--;
+
+
+
+        if(f.life<=0){
+
+            flames.splice(index,1);
 
         }
 
@@ -130,256 +153,452 @@ function drawFire(){
 
 
 
-// ==========================
+// =====================
 // DRAW DRAGON
-// ==========================
+// =====================
 
 function drawDragon(){
 
 
-    ctx.save();
+ctx.save();
 
 
-    ctx.translate(
-        dragon.x,
-        dragon.y
-    );
+ctx.translate(
 
+dragon.x,
 
-    ctx.rotate(dragon.angle);
+dragon.y
 
+);
 
 
-    // body glow
+ctx.rotate(dragon.angle);
 
-    segments.forEach((s,i)=>{
 
 
-        ctx.beginPath();
 
+// GLOW
 
-        ctx.fillStyle =
-        `rgba(255,130,20,${1-i/25})`;
+ctx.shadowBlur=25;
 
+ctx.shadowColor="#ff4500";
 
-        ctx.shadowBlur=20;
 
-        ctx.shadowColor="orange";
 
 
-        ctx.arc(
+// =====================
+// TAIL
+// =====================
 
-            s.x-dragon.x,
+ctx.strokeStyle="#8b3a20";
 
-            s.y-dragon.y,
+ctx.lineWidth=12;
 
-            s.size/2,
 
-            0,
+ctx.beginPath();
 
-            Math.PI*2
+ctx.moveTo(-20,0);
 
-        );
+ctx.quadraticCurveTo(
 
+-70,
 
-        ctx.fill();
+20,
 
+-120,
 
-    });
+0
 
+);
 
+ctx.stroke();
 
 
 
-    // HEAD
+// =====================
+// BODY
+// =====================
 
-    ctx.shadowBlur=30;
+ctx.fillStyle="#7b2d1f";
 
-    ctx.shadowColor="orange";
 
+ctx.beginPath();
 
-    ctx.fillStyle="#ff7b20";
+ctx.ellipse(
 
+0,
 
-    ctx.beginPath();
+0,
 
-    ctx.arc(
+45,
 
-        0,
+25,
 
-        0,
+0,
 
-        28,
+0,
 
-        0,
+Math.PI*2
 
-        Math.PI*2
+);
 
-    );
+ctx.fill();
 
-    ctx.fill();
 
 
 
-    // EYE
+// SCALE LINE
 
-    ctx.fillStyle="yellow";
+ctx.strokeStyle="#ffb347";
 
+ctx.lineWidth=2;
 
-    ctx.beginPath();
 
-    ctx.arc(
+for(let i=-30;i<30;i+=15){
 
-        10,
+ctx.beginPath();
 
-        -8,
+ctx.arc(
 
-        5,
+i,
 
-        0,
+0,
 
-        Math.PI*2
+10,
 
-    );
+0,
 
-    ctx.fill();
+Math.PI
 
+);
 
-
-
-    // HORN
-
-    ctx.strokeStyle="white";
-
-    ctx.lineWidth=3;
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(20,-20);
-
-    ctx.lineTo(35,-35);
-
-    ctx.stroke();
-
-
-
-    ctx.restore();
+ctx.stroke();
 
 }
 
 
 
-// ==========================
+// =====================
+// WINGS
+// =====================
+
+let flap =
+Math.sin(Date.now()/120)*15;
+
+
+
+ctx.fillStyle="#5a1010";
+
+
+// upper wing
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+0,
+
+-10
+
+);
+
+
+ctx.lineTo(
+
+-25,
+
+-70-flap
+
+);
+
+
+ctx.lineTo(
+
+30,
+
+-25
+
+);
+
+
+ctx.fill();
+
+
+
+// lower wing
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+0,
+
+10
+
+);
+
+
+ctx.lineTo(
+
+-25,
+
+70+flap
+
+);
+
+
+ctx.lineTo(
+
+30,
+
+25
+
+);
+
+
+ctx.fill();
+
+
+
+
+// =====================
+// HEAD
+// =====================
+
+
+ctx.fillStyle="#9b3b20";
+
+
+ctx.beginPath();
+
+
+ctx.moveTo(
+
+30,
+
+-25
+
+);
+
+
+ctx.lineTo(
+
+70,
+
+0
+
+);
+
+
+ctx.lineTo(
+
+30,
+
+25
+
+);
+
+
+ctx.closePath();
+
+
+ctx.fill();
+
+
+
+
+// SNOUT
+
+ctx.fillStyle="#d2691e";
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+65,
+
+-8
+
+);
+
+ctx.lineTo(
+
+95,
+
+0
+
+);
+
+ctx.lineTo(
+
+65,
+
+8
+
+);
+
+ctx.fill();
+
+
+
+
+// HORNS
+
+ctx.strokeStyle="#eee";
+
+ctx.lineWidth=4;
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+35,
+
+-20
+
+);
+
+ctx.lineTo(
+
+45,
+
+-45
+
+);
+
+ctx.stroke();
+
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+
+35,
+
+20
+
+);
+
+ctx.lineTo(
+
+45,
+
+45
+
+);
+
+ctx.stroke();
+
+
+
+
+// EYE
+
+ctx.shadowBlur=15;
+
+ctx.shadowColor="yellow";
+
+
+ctx.fillStyle="yellow";
+
+
+ctx.beginPath();
+
+ctx.arc(
+
+55,
+
+-10,
+
+5,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fill();
+
+
+
+ctx.restore();
+
+
+}
+
+
+
+// =====================
 // UPDATE
-// ==========================
+// =====================
 
 function update(){
 
 
-    let dx=
-    mouse.x-dragon.x;
+let dx =
+mouse.x-dragon.x;
 
 
-    let dy=
-    mouse.y-dragon.y;
-
-
-
-    dragon.angle=
-    Math.atan2(dy,dx);
+let dy =
+mouse.y-dragon.y;
 
 
 
-    dragon.x += dx*0.08;
-
-    dragon.y += dy*0.08;
-
-
-
-    // move body
-
-    let previous={
-
-        x:dragon.x,
-
-        y:dragon.y
-
-    };
-
-
-    segments.forEach(s=>{
-
-
-        let temp={
-
-            x:s.x,
-
-            y:s.y
-
-        };
-
-
-        s.x +=
-        (previous.x-s.x)*0.25;
-
-
-        s.y +=
-        (previous.y-s.y)*0.25;
-
-
-        previous=temp;
-
-
-    });
+dragon.angle =
+Math.atan2(dy,dx);
 
 
 
-    createFire(
+dragon.x += dx*0.08;
 
-        segments[segments.length-1].x,
+dragon.y += dy*0.08;
 
-        segments[segments.length-1].y
 
-    );
+
+createFire();
 
 
 }
 
 
 
-// ==========================
+// =====================
 // LOOP
-// ==========================
+// =====================
 
 function animate(){
 
 
-    ctx.clearRect(
+ctx.clearRect(
 
-        0,
+0,
 
-        0,
+0,
 
-        canvas.width,
+canvas.width,
 
-        canvas.height
+canvas.height
 
-    );
-
-
-
-    update();
-
-
-    drawFire();
-
-
-    drawDragon();
+);
 
 
 
-    requestAnimationFrame(animate);
+update();
+
+
+drawFire();
+
+
+drawDragon();
+
+
+
+requestAnimationFrame(animate);
+
 
 }
 
@@ -388,14 +607,14 @@ animate();
 
 
 
-// ==========================
+// =====================
 // RESIZE
-// ==========================
+// =====================
 
 window.addEventListener("resize",()=>{
 
-    canvas.width=innerWidth;
+canvas.width=innerWidth;
 
-    canvas.height=innerHeight;
+canvas.height=innerHeight;
 
 });
