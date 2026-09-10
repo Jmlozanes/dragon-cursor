@@ -25,3 +25,25 @@ A simple Snake Game built using HTML, CSS, and JavaScript. The game allows playe
 4. Try to achieve the highest score possible.
 
 ## Project Structure
+
+
+## Purpose
+
+This project was created to practice JavaScript fundamentals, game logic, DOM manipulation, and basic interactive web development.
+
+## Future Improvements
+
+Possible improvements:
+
+- Add increasing difficulty levels
+- Add high score saving
+- Add sound effects
+- Add start and restart buttons
+- Add mobile touch controls
+
+## Author
+
+John Marc Lozañes
+
+GitHub:
+https://github.com/Jmlozanes
