@@ -45,13 +45,13 @@ function loadImage(src){
 
 const headPath = "assets/dragon/assets/dragon/head/";
 
-const bodyPath = "assets/dragon/assets/dragon/body/";
+const bodyPath = "assets/dragon/assets/dragon/assets/dragon/body/";
 
-const tailPath = "assets/dragon/tail/";
+const tailPath = "assets/dragon/assets/dragon/assets/dragon/tail/";
 
-const wingPath = "assets/dragon/wings/";
+const wingPath = "assets/dragon/assets/dragon/assets/dragon/wings/";
 
-const effectPath = "assets/dragon/effects/";
+const effectPath = "assets/dragon/assets/dragon/assets/dragon/effects/";
 
 
 const dragonHead = loadImage(
