@@ -42,45 +42,53 @@ function loadImage(src){
 // DRAGON ASSETS
 // =============================
 
-const assetPath = "./assets/dragon/assets/dragon/";
+
+const headPath = "assets/dragon/assets/dragon/head/";
+
+const bodyPath = "assets/dragon/body/";
+
+const tailPath = "assets/dragon/tail/";
+
+const wingPath = "assets/dragon/wings/";
+
+const effectPath = "assets/dragon/effects/";
 
 
 const dragonHead = loadImage(
-    assetPath + "head/head_idle.png"
+    headPath + "head_idle.png"
 );
 
 
 const dragonBody = loadImage(
-    assetPath + "body/body_segment.png"
+    bodyPath + "body_segment.png"
 );
 
 
 const dragonTail = loadImage(
-    assetPath + "tail/tail_segment.png"
+    tailPath + "tail_segment.png"
 );
 
 
 const fire = loadImage(
-    assetPath + "effects/fire.png"
+    effectPath + "fire.png"
 );
 
 
 const wingFrames = [
 
     loadImage(
-        assetPath + "wings/wing_1.png"
+        wingPath + "wing_1.png"
     ),
 
     loadImage(
-        assetPath + "wings/wing_2.png"
+        wingPath + "wing_2.png"
     ),
 
     loadImage(
-        assetPath + "wings/wing_3.png"
+        wingPath + "wing_3.png"
     )
 
 ];
-
 
 // =============================
 // DRAGON
