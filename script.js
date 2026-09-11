@@ -1,64 +1,70 @@
 const canvas = document.getElementById("dragonCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-
-// =====================
-// MOUSE
-// =====================
 
 let mouse = {
-    x: innerWidth / 2,
-    y: innerHeight / 2
+    x: canvas.width / 2,
+    y: canvas.height / 2
 };
 
 
-window.addEventListener("mousemove", e => {
+let dragon = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    angle: 0,
+    speed: 0.05
+};
 
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+
+// Dragon body segments
+
+let body = [];
+
+const bodyLength = 12;
+
+for (let i = 0; i < bodyLength; i++) {
+
+    body.push({
+        x: dragon.x - (i * 20),
+        y: dragon.y
+    });
+
+}
+
+
+// Particle system
+
+let particles = [];
+
+
+// Mouse tracking
+
+document.addEventListener("mousemove", (event)=>{
+
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
 
 });
 
 
-
-// =====================
-// DRAGON OBJECT
-// =====================
-
-let dragon = {
-
-    x: innerWidth/2,
-    y: innerHeight/2,
-
-    angle:0,
-
-    wingTime:0
-
-};
-
-
-
-// =====================
-// FIRE TRAIL
-// =====================
-
-let flames=[];
-
+// Create fire particles
 
 function createFire(){
 
-    flames.push({
+    particles.push({
 
-        x: dragon.x - Math.cos(dragon.angle)*35,
+        x: dragon.x - Math.cos(dragon.angle) * 30,
+        y: dragon.y - Math.sin(dragon.angle) * 30,
 
-        y: dragon.y - Math.sin(dragon.angle)*35,
+        size: Math.random() * 8 + 3,
 
-        size: Math.random()*15+8,
+        speedX: (Math.random() - 0.5) * 3,
+        speedY: (Math.random() - 0.5) * 3,
 
-        life:40
+        life: 50
 
     });
 
@@ -66,555 +72,266 @@ function createFire(){
 
 
 
-function drawFire(){
+// Update dragon movement
 
-    flames.forEach((f,index)=>{
-
-
-        ctx.save();
+function updateDragon(){
 
 
-        ctx.globalAlpha=f.life/40;
+    let dx = mouse.x - dragon.x;
+    let dy = mouse.y - dragon.y;
 
 
-        ctx.shadowBlur=20;
-
-        ctx.shadowColor="orange";
+    dragon.angle = Math.atan2(dy, dx);
 
 
-        ctx.fillStyle="orange";
+    dragon.x += dx * dragon.speed;
+    dragon.y += dy * dragon.speed;
+
+
+
+    let previous = {
+
+        x: dragon.x,
+        y: dragon.y
+
+    };
+
+
+
+    body.forEach(segment=>{
+
+
+        let oldX = segment.x;
+        let oldY = segment.y;
+
+
+        segment.x += (previous.x - segment.x) * 0.2;
+        segment.y += (previous.y - segment.y) * 0.2;
+
+
+        previous.x = oldX;
+        previous.y = oldY;
+
+
+    });
+
+
+
+    createFire();
+
+
+
+}
+
+
+
+// Draw dragon
+
+function drawDragon(){
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+
+    // Fire particles
+
+    particles.forEach((particle,index)=>{
+
+
+        ctx.fillStyle = "orange";
+
+        ctx.shadowColor = "red";
+        ctx.shadowBlur = 20;
 
 
         ctx.beginPath();
 
         ctx.arc(
-
-            f.x,
-
-            f.y,
-
-            f.size,
-
+            particle.x,
+            particle.y,
+            particle.size,
             0,
-
-            Math.PI*2
-
+            Math.PI * 2
         );
 
         ctx.fill();
 
 
 
-        ctx.fillStyle="yellow";
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
 
-        ctx.beginPath();
-
-        ctx.arc(
-
-            f.x,
-
-            f.y,
-
-            f.size/2,
-
-            0,
-
-            Math.PI*2
-
-        );
-
-        ctx.fill();
+        particle.life--;
 
 
 
-        ctx.restore();
+        if(particle.life <= 0){
 
-
-
-        f.x -= Math.cos(dragon.angle)*2;
-
-        f.y -= Math.sin(dragon.angle)*2;
-
-
-        f.life--;
-
-
-
-        if(f.life<=0){
-
-            flames.splice(index,1);
+            particles.splice(index,1);
 
         }
 
 
     });
 
-}
 
 
+    ctx.shadowColor = "orange";
+    ctx.shadowBlur = 30;
 
-// =====================
-// DRAW DRAGON
-// =====================
 
-function drawDragon(){
 
+    // Tail / body
 
-ctx.save();
+    body.forEach((segment,index)=>{
 
 
-ctx.translate(
+        ctx.fillStyle = index === 0
+        ? "#b87333"
+        : "#6b3e1e";
 
-dragon.x,
 
-dragon.y
 
-);
+        ctx.beginPath();
 
+        ctx.arc(
 
-ctx.rotate(dragon.angle);
+            segment.x,
+            segment.y,
 
+            25 - index,
 
+            0,
 
+            Math.PI * 2
 
-// GLOW
+        );
 
-ctx.shadowBlur=25;
 
-ctx.shadowColor="#ff4500";
+        ctx.fill();
 
 
+    });
 
 
-// =====================
-// TAIL
-// =====================
 
-ctx.strokeStyle="#8b3a20";
+    // Dragon head
 
-ctx.lineWidth=12;
+    ctx.save();
 
 
-ctx.beginPath();
+    ctx.translate(
+        dragon.x,
+        dragon.y
+    );
 
-ctx.moveTo(-20,0);
 
-ctx.quadraticCurveTo(
+    ctx.rotate(dragon.angle);
 
--70,
 
-20,
 
--120,
+    // Head
 
-0
+    ctx.fillStyle = "#d2691e";
 
-);
 
-ctx.stroke();
+    ctx.beginPath();
 
+    ctx.arc(
+        0,
+        0,
+        35,
+        0,
+        Math.PI * 2
+    );
 
 
-// =====================
-// BODY
-// =====================
+    ctx.fill();
 
-ctx.fillStyle="#7b2d1f";
 
 
-ctx.beginPath();
+    // Eye
 
-ctx.ellipse(
+    ctx.fillStyle = "yellow";
 
-0,
 
-0,
+    ctx.beginPath();
 
-45,
+    ctx.arc(
+        15,
+        -12,
+        7,
+        0,
+        Math.PI * 2
+    );
 
-25,
 
-0,
+    ctx.fill();
 
-0,
 
-Math.PI*2
 
-);
+    // Horns
 
-ctx.fill();
+    ctx.fillStyle = "#eee";
 
 
+    ctx.beginPath();
 
+    ctx.moveTo(
+        -10,
+        -25
+    );
 
-// SCALE LINE
+    ctx.lineTo(
+        -25,
+        -50
+    );
 
-ctx.strokeStyle="#ffb347";
+    ctx.lineTo(
+        0,
+        -25
+    );
 
-ctx.lineWidth=2;
+    ctx.fill();
 
 
-for(let i=-30;i<30;i+=15){
 
-ctx.beginPath();
+    ctx.restore();
 
-ctx.arc(
-
-i,
-
-0,
-
-10,
-
-0,
-
-Math.PI
-
-);
-
-ctx.stroke();
-
-}
-
-
-
-// =====================
-// WINGS
-// =====================
-
-let flap =
-Math.sin(Date.now()/120)*15;
-
-
-
-ctx.fillStyle="#5a1010";
-
-
-// upper wing
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-0,
-
--10
-
-);
-
-
-ctx.lineTo(
-
--25,
-
--70-flap
-
-);
-
-
-ctx.lineTo(
-
-30,
-
--25
-
-);
-
-
-ctx.fill();
-
-
-
-// lower wing
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-0,
-
-10
-
-);
-
-
-ctx.lineTo(
-
--25,
-
-70+flap
-
-);
-
-
-ctx.lineTo(
-
-30,
-
-25
-
-);
-
-
-ctx.fill();
-
-
-
-
-// =====================
-// HEAD
-// =====================
-
-
-ctx.fillStyle="#9b3b20";
-
-
-ctx.beginPath();
-
-
-ctx.moveTo(
-
-30,
-
--25
-
-);
-
-
-ctx.lineTo(
-
-70,
-
-0
-
-);
-
-
-ctx.lineTo(
-
-30,
-
-25
-
-);
-
-
-ctx.closePath();
-
-
-ctx.fill();
-
-
-
-
-// SNOUT
-
-ctx.fillStyle="#d2691e";
-
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-65,
-
--8
-
-);
-
-ctx.lineTo(
-
-95,
-
-0
-
-);
-
-ctx.lineTo(
-
-65,
-
-8
-
-);
-
-ctx.fill();
-
-
-
-
-// HORNS
-
-ctx.strokeStyle="#eee";
-
-ctx.lineWidth=4;
-
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-35,
-
--20
-
-);
-
-ctx.lineTo(
-
-45,
-
--45
-
-);
-
-ctx.stroke();
-
-
-
-ctx.beginPath();
-
-ctx.moveTo(
-
-35,
-
-20
-
-);
-
-ctx.lineTo(
-
-45,
-
-45
-
-);
-
-ctx.stroke();
-
-
-
-
-// EYE
-
-ctx.shadowBlur=15;
-
-ctx.shadowColor="yellow";
-
-
-ctx.fillStyle="yellow";
-
-
-ctx.beginPath();
-
-ctx.arc(
-
-55,
-
--10,
-
-5,
-
-0,
-
-Math.PI*2
-
-);
-
-ctx.fill();
-
-
-
-ctx.restore();
 
 
 }
 
 
 
-// =====================
-// UPDATE
-// =====================
-
-function update(){
-
-
-let dx =
-mouse.x-dragon.x;
-
-
-let dy =
-mouse.y-dragon.y;
-
-
-
-dragon.angle =
-Math.atan2(dy,dx);
-
-
-
-dragon.x += dx*0.08;
-
-dragon.y += dy*0.08;
-
-
-
-createFire();
-
-
-}
-
-
-
-// =====================
-// LOOP
-// =====================
 
 function animate(){
 
+    updateDragon();
 
-ctx.clearRect(
+    drawDragon();
 
-0,
-
-0,
-
-canvas.width,
-
-canvas.height
-
-);
-
-
-
-update();
-
-
-drawFire();
-
-
-drawDragon();
-
-
-
-requestAnimationFrame(animate);
-
+    requestAnimationFrame(animate);
 
 }
+
 
 
 animate();
 
 
 
-// =====================
-// RESIZE
-// =====================
+// Resize support
 
 window.addEventListener("resize",()=>{
 
-canvas.width=innerWidth;
-
-canvas.height=innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
 });
