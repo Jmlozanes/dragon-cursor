@@ -1,30 +1,29 @@
 // ======================================================
 // EXO CENTIPEDE TITAN-01
-// CLEAN BOSS ENGINE v4.1
+// CLEAN ENGINE v4.1
 // ======================================================
 
 
 // ==============================
-// CANVAS
+// CANVAS SETUP
 // ==============================
 
 const canvas = document.getElementById("bossCanvas");
-
 const ctx = canvas.getContext("2d");
 
 
-function resize(){
+function resizeCanvas(){
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
 }
 
-resize();
+
+resizeCanvas();
 
 
-window.addEventListener("resize",resize);
-
+window.addEventListener("resize", resizeCanvas);
 
 
 
@@ -34,19 +33,16 @@ window.addEventListener("resize",resize);
 
 const mouse = {
 
-    x: canvas.width/2,
-    y: canvas.height/2
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
 
 };
 
 
 window.addEventListener("mousemove",(e)=>{
 
-
-    mouse.x=e.clientX;
-
-    mouse.y=e.clientY;
-
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
 
 });
 
@@ -54,38 +50,36 @@ window.addEventListener("mousemove",(e)=>{
 
 
 // ==============================
-// BOSS DATA
+// BOSS SETTINGS
 // ==============================
 
 
 const boss = {
 
-    segments:[],
+    segments: [],
 
-    amount:80,
+    amount: 80,
 
-    spacing:16,
+    spacing: 16,
 
-    speed:0.08
+    speed: 0.08
 
 };
 
 
 
+// create body
 
-// create segments
-
-for(let i=0;i<boss.amount;i++){
+for(let i = 0; i < boss.amount; i++){
 
 
     boss.segments.push({
 
-        x:canvas.width/2-i*boss.spacing,
+        x: canvas.width/2 - i * boss.spacing,
 
-        y:canvas.height/2,
+        y: canvas.height/2,
 
         angle:0
-
 
     });
 
@@ -97,68 +91,60 @@ for(let i=0;i<boss.amount;i++){
 
 
 
-
 // ==============================
-// MOVEMENT ENGINE
+// MOVEMENT
 // ==============================
 
 
 function updateMovement(){
 
 
-
-    let head=boss.segments[0];
-
+    let head = boss.segments[0];
 
 
-    head.x += (mouse.x-head.x)*boss.speed;
+    head.x += (mouse.x - head.x) * boss.speed;
 
-    head.y += (mouse.y-head.y)*boss.speed;
+    head.y += (mouse.y - head.y) * boss.speed;
 
 
 
-    for(let i=1;i<boss.segments.length;i++){
+    for(let i = 1; i < boss.segments.length; i++){
 
 
-        let current=boss.segments[i];
+        let current = boss.segments[i];
 
-        let previous=boss.segments[i-1];
-
-
-
-        let dx=previous.x-current.x;
-
-        let dy=previous.y-current.y;
+        let previous = boss.segments[i-1];
 
 
 
-        let distance=Math.sqrt(dx*dx+dy*dy);
+        let dx = previous.x - current.x;
+
+        let dy = previous.y - current.y;
 
 
 
-        if(distance>boss.spacing){
-
-
-            current.x +=
-
-            dx/distance*
-
-            (distance-boss.spacing);
+        let distance = Math.sqrt(dx*dx + dy*dy);
 
 
 
-            current.y +=
+        if(distance > boss.spacing){
 
-            dy/distance*
 
-            (distance-boss.spacing);
+            current.x += 
+            (dx/distance) *
+            (distance - boss.spacing);
+
+
+
+            current.y += 
+            (dy/distance) *
+            (distance - boss.spacing);
 
 
         }
 
 
-
-        current.angle=Math.atan2(dy,dx);
+        current.angle = Math.atan2(dy,dx);
 
 
     }
@@ -171,12 +157,13 @@ function updateMovement(){
 
 
 
+
 // ==============================
 // PARTICLES
 // ==============================
 
 
-let particles=[];
+let particles = [];
 
 
 
@@ -189,9 +176,9 @@ function createParticle(x,y,type){
 
         y:y,
 
-        vx:(Math.random()-0.5)*4,
+        vx:(Math.random()-0.5)*5,
 
-        vy:(Math.random()-0.5)*4,
+        vy:(Math.random()-0.5)*5,
 
         life:50,
 
@@ -209,22 +196,22 @@ function createParticle(x,y,type){
 function updateParticles(){
 
 
-    for(let i=particles.length-1;i>=0;i--){
+    for(let i = particles.length-1; i >=0; i--){
 
 
-        let p=particles[i];
+        let p = particles[i];
 
 
-        p.x+=p.vx;
+        p.x += p.vx;
 
-        p.y+=p.vy;
+        p.y += p.vy;
 
 
         p.life--;
 
 
 
-        if(p.life<=0){
+        if(p.life <= 0){
 
             particles.splice(i,1);
 
@@ -247,23 +234,17 @@ function drawParticles(){
         ctx.beginPath();
 
 
-        if(p.type==="fire"){
-
-            ctx.fillStyle="#ff5500";
-
-        }
-
-        else{
-
-            ctx.fillStyle="#00ffff";
-
-        }
+        ctx.fillStyle = 
+        p.type === "fire"
+        ?
+        "#ff5500"
+        :
+        "#00ffff";
 
 
+        ctx.shadowBlur = 20;
 
-        ctx.shadowBlur=20;
-
-        ctx.shadowColor=ctx.fillStyle;
+        ctx.shadowColor = ctx.fillStyle;
 
 
 
@@ -286,8 +267,7 @@ function drawParticles(){
 
 
 
-        ctx.shadowBlur=0;
-
+        ctx.shadowBlur = 0;
 
 
     });
@@ -302,90 +282,20 @@ function drawParticles(){
 
 
 // ==============================
-// LEGS
-// ==============================
-
-
-function drawLegs(segment,index){
-
-
-
-    let wave=Math.sin(Date.now()*0.015+index);
-
-
-
-    let side=index%2===0?1:-1;
-
-
-
-    ctx.strokeStyle="#00ffff";
-
-    ctx.lineWidth=2;
-
-
-
-    ctx.beginPath();
-
-
-    ctx.moveTo(
-
-        segment.x,
-
-        segment.y
-
-    );
-
-
-    ctx.lineTo(
-
-        segment.x+
-
-        Math.cos(segment.angle+side*1.2)
-
-        *
-
-        (25+wave*5),
-
-
-
-        segment.y+
-
-        Math.sin(segment.angle+side*1.2)
-
-        *
-
-        (25+wave*5)
-
-
-    );
-
-
-    ctx.stroke();
-
-
-
-}
-
-
-
-
-
-
-
-// ==============================
-// BODY
+// BODY DRAWING
 // ==============================
 
 
 function drawBody(){
 
 
-    let body=boss.segments;
+    let body = boss.segments;
 
 
+
+    // spine
 
     ctx.beginPath();
-
 
     ctx.strokeStyle="#00ffff";
 
@@ -397,25 +307,18 @@ function drawBody(){
 
 
         ctx.moveTo(
-
             body[i].x,
-
             body[i].y
-
         );
 
 
         ctx.lineTo(
-
             body[i+1].x,
-
             body[i+1].y
-
         );
 
 
     }
-
 
 
     ctx.stroke();
@@ -435,20 +338,11 @@ function drawBody(){
 
 
 
-        let radius=index===0?25:13;
-
-
-
-        ctx.fillStyle=
-
+        ctx.fillStyle =
         index===0
-
         ?
-
         "#ff003c"
-
         :
-
         "#182027";
 
 
@@ -465,7 +359,7 @@ function drawBody(){
 
             segment.y,
 
-            radius,
+            index===0 ? 25 : 13,
 
             0,
 
@@ -493,6 +387,65 @@ function drawBody(){
 
 
 
+// ==============================
+// LEGS
+// ==============================
+
+
+function drawLegs(segment,index){
+
+
+    let wave = Math.sin(Date.now()*0.02 + index);
+
+
+    let side = index%2===0 ? 1 : -1;
+
+
+
+    ctx.beginPath();
+
+
+    ctx.strokeStyle="#00ffff";
+
+    ctx.lineWidth=2;
+
+
+
+    ctx.moveTo(
+
+        segment.x,
+
+        segment.y
+
+    );
+
+
+    ctx.lineTo(
+
+        segment.x +
+        Math.cos(segment.angle + side*1.2)
+        *
+        (25 + wave*5),
+
+
+        segment.y +
+        Math.sin(segment.angle + side*1.2)
+        *
+        (25 + wave*5)
+
+    );
+
+
+    ctx.stroke();
+
+
+}
+
+
+
+
+
+
 
 // ==============================
 // HEAD
@@ -502,13 +455,11 @@ function drawBody(){
 function drawHead(){
 
 
-
-    let h=boss.segments[0];
+    let h = boss.segments[0];
 
 
 
     ctx.fillStyle="white";
-
 
 
     ctx.beginPath();
@@ -516,33 +467,21 @@ function drawHead(){
 
 
     ctx.arc(
-
         h.x-8,
-
         h.y-8,
-
         5,
-
         0,
-
         Math.PI*2
-
     );
 
 
 
     ctx.arc(
-
         h.x+8,
-
         h.y-8,
-
         5,
-
         0,
-
         Math.PI*2
-
     );
 
 
@@ -558,12 +497,14 @@ function drawHead(){
 
 
 
+
+
 // ==============================
 // LASER
 // ==============================
 
 
-let laser=false;
+let laser = false;
 
 
 
@@ -604,7 +545,7 @@ function drawLaser(){
 
 
 
-    let h=boss.segments[0];
+    let head=boss.segments[0];
 
 
 
@@ -619,9 +560,9 @@ function drawLaser(){
 
     ctx.moveTo(
 
-        h.x,
+        head.x,
 
-        h.y
+        head.y
 
     );
 
@@ -635,18 +576,15 @@ function drawLaser(){
     );
 
 
+
     ctx.stroke();
 
 
 
     createParticle(
-
         mouse.x,
-
         mouse.y,
-
         "energy"
-
     );
 
 
@@ -685,10 +623,15 @@ canvas.addEventListener("click",()=>{
 
 
 
+
+
 function drawShockwave(){
 
 
-    waves.forEach((w,i)=>{
+    for(let i=waves.length-1;i>=0;i--){
+
+
+        let w=waves[i];
 
 
         w.r+=8;
@@ -699,6 +642,7 @@ function drawShockwave(){
 
 
         ctx.strokeStyle="#00ffff";
+
 
         ctx.arc(
 
@@ -726,7 +670,7 @@ function drawShockwave(){
         }
 
 
-    });
+    }
 
 
 }
@@ -736,8 +680,9 @@ function drawShockwave(){
 
 
 
+
 // ==============================
-// BOOST
+// SHIFT BOOST
 // ==============================
 
 
@@ -746,9 +691,7 @@ window.addEventListener("keydown",(e)=>{
 
     if(e.code==="ShiftLeft" || e.code==="ShiftRight"){
 
-
         boss.speed=0.18;
-
 
     }
 
@@ -762,9 +705,7 @@ window.addEventListener("keyup",(e)=>{
 
     if(e.code==="ShiftLeft" || e.code==="ShiftRight"){
 
-
         boss.speed=0.08;
-
 
     }
 
@@ -776,37 +717,11 @@ window.addEventListener("keyup",(e)=>{
 
 
 
+
+
 // ==============================
 // EFFECTS
 // ==============================
-
-
-function plasma(){
-
-
-    for(let i=20;i<boss.segments.length;i+=4){
-
-
-        let s=boss.segments[i];
-
-
-        createParticle(
-
-            s.x,
-
-            s.y,
-
-            "fire"
-
-        );
-
-
-    }
-
-
-}
-
-
 
 
 function grid(){
@@ -834,29 +749,49 @@ function grid(){
 
 
 
+function plasma(){
+
+
+    for(let i=20;i<boss.segments.length;i+=5){
+
+
+        let s=boss.segments[i];
+
+
+        createParticle(
+            s.x,
+            s.y,
+            "fire"
+        );
+
+
+    }
+
+
+}
+
+
+
 
 
 
 
 // ==============================
-// GAME LOOP
+// MAIN LOOP
 // ==============================
 
 
 function animate(){
 
 
-
     ctx.fillStyle="rgba(0,0,0,0.35)";
+
 
     ctx.fillRect(
 
         0,
-
         0,
-
         canvas.width,
-
         canvas.height
 
     );
@@ -870,10 +805,13 @@ function animate(){
     updateMovement();
 
 
+
     plasma();
 
 
+
     updateParticles();
+
 
 
     drawParticles();
@@ -883,10 +821,13 @@ function animate(){
     drawBody();
 
 
+
     drawHead();
 
 
+
     drawLaser();
+
 
 
     drawShockwave();
@@ -897,6 +838,7 @@ function animate(){
 
 
 }
+
 
 
 
