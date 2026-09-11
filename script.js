@@ -391,20 +391,6 @@ function drawBackground(){
 // MAIN ENGINE LOOP
 // ==============================
 
-function animate(){
-
-    drawBackground();
-
-    updateMovement();
-
-    drawBody();
-
-    drawHead();
-
-    requestAnimationFrame(animate);
-
-}
-
 animate();
 // ======================================================
 // PART 3 - BOSS EFFECT SYSTEM
@@ -596,72 +582,52 @@ canvas.addEventListener("mouseup",(e)=>{
 function drawLaser(){
 
 
-if(!laser)return;
+    if(!laser) return;
+
+
+    let head=boss.segments[0];
+
+
+    ctx.beginPath();
+
+
+    ctx.strokeStyle="#ff003c";
+
+    ctx.shadowBlur=20;
+
+    ctx.shadowColor="#ff003c";
+
+    ctx.lineWidth=5;
+
+
+    ctx.moveTo(
+        head.x,
+        head.y
+    );
+
+
+    ctx.lineTo(
+        mouse.x,
+        mouse.y
+    );
+
+
+    ctx.stroke();
+
+
+    ctx.shadowBlur=0;
 
 
 
-let head=boss.segments[0];
+    for(let i=0;i<5;i++){
 
+        createParticle(
+            mouse.x,
+            mouse.y,
+            "energy"
+        );
 
-
-ctx.beginPath();
-
-
-ctx.strokeStyle="#ff003c";
-
-ctx.shadowBlur=20;
-
-ctx.shadowColor="#ff003c";
-
-
-ctx.lineWidth=5;
-
-
-
-ctx.moveTo(
-
-head.x,
-
-head.y
-
-);
-
-
-
-ctx.lineTo(
-
-mouse.x,
-
-mouse.y
-
-);
-
-
-
-ctx.stroke();
-
-
-
-ctx.shadowBlur=0;
-
-
-
-
-for(let i=0;i<3;i++){
-
-
-createParticle(
-
-mouse.x,
-
-mouse.y,
-
-"energy"
-
-);
-
-
-}
+    }
 
 
 }
@@ -750,30 +716,25 @@ shockwaves.splice(i,1);
 
 let boost=false;
 
-document.addEventListener("keydown",(e)=>{
+window.addEventListener("keydown",(e)=>{
 
-    if(e.code==="ShiftLeft" || e.code==="ShiftRight"){
+if(e.key === "Shift"){
 
-        boost=true;
+boss.speed = 0.18;
 
-        boss.speed=0.18;
-
-    }
+}
 
 });
 
-document.addEventListener("keyup",(e)=>{
+window.addEventListener("keyup",(e)=>{
 
-    if(e.code==="ShiftLeft" || e.code==="ShiftRight"){
+if(e.key === "Shift"){
 
-        boost=false;
+boss.speed = 0.08;
 
-        boss.speed=0.08;
-
-    }
+}
 
 });
-
 
 // ==============================
 // CYBER GRID
@@ -840,3 +801,30 @@ canvas.addEventListener("contextmenu",(e)=>{
     e.preventDefault();
 
 });
+
+function animate(){
+
+
+    drawBackground();
+
+
+    bossEffects();
+
+
+    updateMovement();
+
+
+    drawBody();
+
+
+    drawHead();
+
+
+
+    requestAnimationFrame(animate);
+
+
+}
+
+
+animate();
