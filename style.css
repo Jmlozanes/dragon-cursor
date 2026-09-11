@@ -1,22 +1,160 @@
 *{
 
-margin:0;
-padding:0;
-box-sizing:border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 
 }
 
 
+
+html,
 body{
 
-overflow:hidden;
-background:#020406;
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    background:#020304;
+
+    font-family:
+    "Courier New",
+    monospace;
 
 }
+
+
 
 
 canvas{
 
-display:block;
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+}
+
+
+
+
+/* ============================= */
+/* HUD SYSTEM */
+/* ============================= */
+
+
+.hud{
+
+
+    position:absolute;
+
+    top:25px;
+
+    left:30px;
+
+
+    color:#00ffff;
+
+
+    pointer-events:none;
+
+
+    text-shadow:
+
+    0 0 10px #00ffff;
+
+
+}
+
+
+
+.title{
+
+
+    font-size:22px;
+
+    letter-spacing:4px;
+
+    font-weight:bold;
+
+
+}
+
+
+
+.status{
+
+
+    margin-top:12px;
+
+
+    font-size:14px;
+
+
+    color:#00ff66;
+
+
+}
+
+
+
+.status span{
+
+
+    color:#ffffff;
+
+
+}
+
+
+
+
+.warning{
+
+
+    margin-top:15px;
+
+
+    color:#ff003c;
+
+
+    font-size:13px;
+
+
+    animation:pulse 1.5s infinite;
+
+
+}
+
+
+
+
+@keyframes pulse{
+
+
+    0%{
+
+        opacity:.4;
+
+    }
+
+
+    50%{
+
+        opacity:1;
+
+    }
+
+
+    100%{
+
+        opacity:.4;
+
+    }
+
 
 }
